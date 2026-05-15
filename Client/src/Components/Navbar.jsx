@@ -2,16 +2,35 @@ import React, { useState } from 'react'
 import logo from '../assets/Logo.png'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useDispatch, useSelector } from 'react-redux'
+import { FaUserCircle } from "react-icons/fa";
+import { logout } from '../Redux/Authslice';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const Navbar = () => {
+
+    const { isAuthenticated, user } = useSelector(state => state.auth)
+    const dispatch = useDispatch()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
+    const handleLogout = async () => {
+        try {
+            await axios.post('http://localhost:8000/api/auth/logout', {}, { withCredentials: true })
+            dispatch(logout())
+            toast.success("Successfully logged out")
+        } catch (error) {
+            console.log("Error logging out", error)
+            toast.error("Error logging out")
+        }
+    }
+
     const navLinks = [
-        { name: 'About Us', path: '#' },
-        { name: 'Store', path: '#' },
-        { name: 'Reviews', path: '#' },
-        { name: 'Enquiries', path: '#' },
-        { name: 'Connect Us', path: '#' },
+        { name: 'About Us', path: '/aboutus' },
+        { name: 'Store', path: '/store' },
+        { name: 'Reviews', path: '/reviews' },
+        { name: 'Enquiries', path: '/enquiries' },
+        { name: 'Connect Us', path: '/connectus' },
     ]
 
     return (
@@ -28,20 +47,34 @@ const Navbar = () => {
                     {/* Desktop Navigation */}
                     <div className='hidden lg:flex items-center space-x-8'>
                         {navLinks.map((link, index) => (
-                            <a key={index} href={link.path} className='text-base font-medium text-gray-600 hover:text-orange-500 transition-colors duration-200'>
+                            <Link key={index} to={link.path} className='text-base font-medium text-gray-600 hover:text-orange-500 transition-colors duration-200'>
                                 {link.name}
-                            </a>
+                            </Link>
                         ))}
                     </div>
 
                     {/* Desktop Auth Buttons */}
                     <div className='hidden lg:flex items-center space-x-4'>
-                        <Link to='/login' className='text-gray-700 hover:text-orange-500 font-medium px-4 py-2 transition-colors duration-200'>
-                            Login
-                        </Link>
-                        <Link to='/signup' className='bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full font-medium shadow-[0_4px_14px_0_rgba(249,115,22,0.39)] transition-all duration-200 hover:-translate-y-0.5'>
-                            Sign Up
-                        </Link>
+                        {isAuthenticated ? (
+                            <div className='flex items-center space-x-1'>
+                                <Link to='/profile' className='flex items-center gap-2 text-gray-700 hover:text-orange-500 font-medium px-4 py-2 transition-colors duration-200'>
+                                    <FaUserCircle className='text-3xl' />
+                                    Profile
+                                </Link>
+                                <button onClick={handleLogout} className='px-6 py-2 rounded-full font-medium text-black/50 text-sm transition-all duration-200 hover:-translate-y-0.5'>
+                                    Logout
+                                </button>
+                            </div>
+                        ) : (
+                            <div className='flex items-center space-x-1'>
+                                <Link to='/login' className='text-gray-700 hover:text-orange-500 font-medium px-4 py-2 transition-colors duration-200'>
+                                    Login
+                                </Link>
+                                <Link to='/signup' className='bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full font-medium shadow-[0_4px_14px_0_rgba(249,115,22,0.39)] transition-all duration-200 hover:-translate-y-0.5'>
+                                    Sign Up
+                                </Link>
+                            </div>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -78,27 +111,35 @@ const Navbar = () => {
                     >
                         <div className='px-4 pt-2 pb-6 space-y-1 sm:px-6 flex flex-col gap-1'>
                             {navLinks.map((link, index) => (
-                                <a
+                                <Link
                                     key={index}
-                                    href={link.path}
+                                    to={link.path}
+                                    onClick={() => setIsMobileMenuOpen(false)}
                                     className='block px-4 py-3 rounded-xl text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-orange-50 transition-colors duration-200'
                                 >
                                     {link.name}
-                                </a>
+                                </Link>
                             ))}
                             <div className='mt-4 pt-6 border-t border-gray-100 flex flex-col gap-3 px-2'>
-                                <Link
-                                    to='/login'
-                                    className='block w-full text-center px-4 py-3 rounded-full border-2 border-gray-200 text-base font-semibold text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 transition-colors'
-                                >
-                                    Log in
-                                </Link>
-                                <Link
-                                    to='/signup'
-                                    className='block w-full text-center px-4 py-3 rounded-full text-base font-semibold text-white bg-orange-500 hover:bg-orange-600 shadow-[0_4px_14px_0_rgba(249,115,22,0.39)] transition-colors'
-                                >
-                                    Sign up
-                                </Link>
+                                {isAuthenticated ? (
+                                    <div className='flex items-center space-x-4'>
+                                        <Link to='/profile' className='text-gray-700 hover:text-orange-500 font-medium px-4 py-2 transition-colors duration-200'>
+                                            Profile
+                                        </Link>
+                                        <button onClick={handleLogout} className='bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full font-medium shadow-[0_4px_14px_0_rgba(249,115,22,0.39)] transition-all duration-200 hover:-translate-y-0.5'>
+                                            Logout
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className='flex items-center space-x-4'>
+                                        <Link to='/login' className='text-gray-700 hover:text-orange-500 font-medium px-4 py-2 transition-colors duration-200'>
+                                            Login
+                                        </Link>
+                                        <Link to='/signup' className='bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full font-medium shadow-[0_4px_14px_0_rgba(249,115,22,0.39)] transition-all duration-200 hover:-translate-y-0.5'>
+                                            Sign Up
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </motion.div>

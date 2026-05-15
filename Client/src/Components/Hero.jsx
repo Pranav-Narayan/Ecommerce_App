@@ -10,7 +10,6 @@ const Hero = () => {
         "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?q=80&w=1200&auto=format&fit=crop",
         "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop",
         "https://images.unsplash.com/photo-1497339100210-9e87df79c218?q=80&w=1200&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1591557306915-0d694da7c07c?q=80&w=1200&auto=format&fit=crop"
     ];
 
     const [currentImage, setCurrentImage] = useState(0);

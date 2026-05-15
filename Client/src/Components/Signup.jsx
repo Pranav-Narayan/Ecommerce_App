@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 
 const Signup = () => {
 
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const [formData, setFormData] = useState({
     name: '', email: '', password: ''
@@ -51,15 +53,29 @@ const Signup = () => {
         toast.error(validateError)
         return
       }
-
+      setLoading(true)
       const response = await axios.post(
-        'http://127.0.0.1:8000/api/auth/signup',
+        'http://localhost:8000/api/auth/signup',
         formData)
       console.log("Account Created")
       setFormData({ name: "", email: "", password: "" })
-
       toast.success('Account Created, Check your mail to verify account')
+      setLoading(false)
+
+      setTimeout(() => {
+        navigate('/login')
+      }, 2000);
+
     } catch (error) {
+
+      const errorResponse = error.response?.data.error
+      console.log("Error response in backend ==", errorResponse)
+      if (errorResponse) {
+        toast.error(errorResponse)
+        setLoading(false)
+        return
+      }
+      toast.error("Something went wrong . Signup Failed")
       console.log("Error in Signup :", error)
     }
   }
@@ -88,8 +104,19 @@ const Signup = () => {
               </div>
             </div>
 
-            <div className='pt-2'>
-              <button className='w-full bg-gray-900 hover:bg-black text-white font-medium rounded-xl text-md px-8 py-3.5 text-center transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-0.5' onClick={onSignup}>Signup</button>
+            <div className='pt-2 relative'>
+              <button
+                className='w-full bg-gray-900 hover:bg-black text-white font-medium rounded-xl text-md px-8 py-3.5 text-center transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-4'
+                onClick={onSignup}>
+                {loading ?
+                  <>
+                    <div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+                    <span>Creating Account...</span>
+                  </>
+                  :
+                  'Signup'
+                }
+              </button>
             </div>
 
           </div>
